@@ -70,7 +70,7 @@ namespace GUISharp.Controls
 
         internal void RegTouchInputReceiver(TouchScreenSharp.TouchScreen touch)
         {
-            this.touch = touch;
+            this.Touch = touch;
             touch.OnPress += Touch_OnPress;
             touch.OnMove += Touch_OnMove;
             touch.OnRelease += Touch_OnRelease;
@@ -78,10 +78,12 @@ namespace GUISharp.Controls
 
         internal void RemoveTouchInputReceiver()
         {
-            touch.OnPress -= Touch_OnPress;
-            touch.OnMove -= Touch_OnMove;
-            touch.OnRelease -= Touch_OnRelease;
+            Touch.OnPress -= Touch_OnPress;
+            Touch.OnMove -= Touch_OnMove;
+            Touch.OnRelease -= Touch_OnRelease;
         }
+
+        //TODO: 将三个原始触摸事件转换为五个封装后的触摸事件
 
         private void Touch_OnRelease(object arg1, TouchScreenSharp.TouchEventArgs arg2)
         {
