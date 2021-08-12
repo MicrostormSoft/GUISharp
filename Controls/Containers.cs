@@ -43,6 +43,24 @@ namespace GUISharp.Controls
             control.RegTouchInputReceiver(Touch);
         }
 
+        internal new void RegTouchInputReceiver(TouchScreenSharp.TouchScreen touch)
+        {
+            foreach(Control item in Childs)
+            {
+                item.RegTouchInputReceiver(touch);
+            }
+            base.RegTouchInputReceiver(touch);
+        }
+
+        internal new void RemoveTouchInputReceiver()
+        {
+            foreach (Control item in Childs)
+            {
+                item.RemoveTouchInputReceiver();
+            }
+            base.RemoveTouchInputReceiver();
+        }
+
         public override Bitmap Draw(bool drawall = false)
         {
             ChangedArea = Rectangle.Empty;

@@ -18,6 +18,7 @@ namespace GUISharp.Controls
         public Bitmap Appearance;
         public Graphics Graphics;
         public bool Changed;
+        public bool TouchReceiverRegestered { get; private set; }
 
         public event Action<object, Point> OnPressDown;
         public event Action<object, Point> OnPressMove;
@@ -27,7 +28,7 @@ namespace GUISharp.Controls
 
         protected TouchScreen Touch;
 
-        public abstract Bitmap Draw(bool drawall=false);
+        public abstract Bitmap Draw(bool drawall = false);
 
         public Control(int width, int height, Color background, Color foreground)
         {
@@ -70,34 +71,65 @@ namespace GUISharp.Controls
 
         internal void RegTouchInputReceiver(TouchScreenSharp.TouchScreen touch)
         {
-            this.Touch = touch;
-            touch.OnPress += Touch_OnPress;
-            touch.OnMove += Touch_OnMove;
-            touch.OnRelease += Touch_OnRelease;
+            if (touch != null && !TouchReceiverRegestered)
+            {
+                this.Touch = touch;
+                touch.OnPress += Touch_OnPress;
+                touch.OnMove += Touch_OnMove;
+                touch.OnRelease += Touch_OnRelease;
+                TouchReceiverRegestered = true;
+            }
         }
 
         internal void RemoveTouchInputReceiver()
         {
-            Touch.OnPress -= Touch_OnPress;
-            Touch.OnMove -= Touch_OnMove;
-            Touch.OnRelease -= Touch_OnRelease;
+            if (Touch != null && TouchReceiverRegestered)
+            {
+                Touch.OnPress -= Touch_OnPress;
+                Touch.OnMove -= Touch_OnMove;
+                Touch.OnRelease -= Touch_OnRelease;
+                TouchReceiverRegestered = false;
+            }
         }
 
         //TODO: 将三个原始触摸事件转换为五个封装后的触摸事件
-
+        private bool isInside = false;
         private void Touch_OnRelease(object arg1, TouchScreenSharp.TouchEventArgs arg2)
         {
-
+            var point = new Point(arg2.X, arg2.Y);
+            if (this.HitBox.Contains(point))
+            {
+                OnPressUp?.Invoke(this, point);
+                isInside = false;
+            }
         }
 
         private void Touch_OnMove(object arg1, TouchScreenSharp.TouchEventArgs arg2)
         {
-
+            var point = new Point(arg2.X, arg2.Y);
+            if (this.HitBox.Contains(point))
+            {
+                OnPressUp?.Invoke(this, point);
+                if (!isInside)
+                    OnPressMoveEnter?.Invoke(this, point);
+                isInside = true;
+            }
+            else
+            {
+                if (isInside)
+                    OnPressMoveLeave?.Invoke(this, point);
+                isInside = false;
+            }
         }
 
         private void Touch_OnPress(object arg1, TouchScreenSharp.TouchEventArgs arg2)
         {
-
+            var point = new Point(arg2.X, arg2.Y);
+            if (this.HitBox.Contains(point))
+            {
+                OnPressDown?.Invoke(this, point);
+                isInside = true;
+            }
         }
     }
 }
